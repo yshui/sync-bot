@@ -9,9 +9,6 @@ my $name=shift or die "You must specify a destination\n";
 my $max_retries=shift || 5;
 my $mirror_base_dir="/fsdata/site/mirror/";
 my $mirror_status_dir=$mirror_base_dir.".status/";
-if (!($uri =~ /\/$/)){
-	print "Warning: $uri is not ended with a slash\n";
-}
 die "Mirror name shouldn't contain slashes\n" if $name =~ /\//;
 my $dest=$mirror_base_dir.$name."/";
 my $status=$mirror_status_dir.$name."/";
@@ -23,6 +20,9 @@ open my $source, "<", $status."source";
 my $uri = <$source>;
 close $source;
 chomp $uri;
+if (!($uri =~ /\/$/)){
+	print "Warning: $uri is not ended with a slash\n";
+}
 #acquire lock file
 my $lockfile;
 if (-e $status."lock"){
