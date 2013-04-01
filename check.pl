@@ -10,7 +10,8 @@ if($pid=fork){
 POSIX::setsid or die "setsid: $!\n";
 if($pid=fork){
 	die "Can't fork: $!\n" if $pid<0;
-	if(!(open my $pidfile, '>', "~/.checker.pid")){
+	my $pidfile;
+	if(!(open $pidfile, '>', "~/.checker.pid")){
 		kill 9, $pid;
 		die "Can't open pid file\n";
 	}
