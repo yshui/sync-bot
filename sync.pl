@@ -69,10 +69,18 @@ while($max_retries--){
 	while(<$res>){
 		chomp;
 		my $line=$_;
-		print "$line\n";
-		if(!($line =~ /^\s*$/)){
-			#there're changes
-			$flag=1;
+		if(!($line =~ /[\000-\037]/)){
+			print "$line\n";
+			if(!($line =~ /^\s*$/)){
+				#there're changes
+				$flag=1;
+			}
+		}else{
+			$line =~ /[\000-\037]([^\000-\037]*)$/;
+			my $lastline = $1;
+			print $lastline;
+			#it's a progress line, parse it here
+			/\d+\s+\d+%[\d.]+\wB\/s\s+\d+:\d\d:\d\d\s+\(xfer#\d+, to-check=\d+\/\d+\)/;
 		}
 	}
 	close $res;
