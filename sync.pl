@@ -52,7 +52,7 @@ if (-e $status."override_options"){
 	open my $opt, "<", $status."override_options";
 	my $tmp = <$opt>;
 	chomp $tmp;
-	if (/(.*-){2,}/){
+	if ($tmp =~ /(.*-){2,}/){
 		#a simple sanity check, prevent abusing of override_options
 		die "There should be only one dash in override_options\n";
 	}
