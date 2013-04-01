@@ -78,7 +78,7 @@ while($max_retries--){
 		}else{
 			$line =~ /[\000-\037]([^\000-\037]*)$/;
 			my $lastline = $1;
-			print $lastline;
+			print "$lastline\n";
 			#it's a progress line, parse it here
 			/\d+\s+\d+%[\d.]+\wB\/s\s+\d+:\d\d:\d\d\s+\(xfer#\d+, to-check=\d+\/\d+\)/;
 		}
