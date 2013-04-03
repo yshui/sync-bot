@@ -33,7 +33,6 @@ sub config_parse {
 		}elsif(/^:/){
 			s/^://;
 			$path = $_;
-			$path.="/" if !($path =~ /\/$/);
 		}elsif(/^-/){
 			$opts = $_;
 			if ($opts =~ /(.*-){2,}/){
@@ -65,9 +64,7 @@ my $max_retries=shift || 5;
 my $mirror_status_dir=$mirror_base_dir.".status/";
 my $status=$mirror_status_dir.$name."/";
 
-my ($uri, $opts, $dest) = &config_parse("./.mirror.cfg", $name);
-print "$uri $opts $dest\n";
-exit 0;
+my ($uri, $opts, $dest) = &config_parse("$mirror_base_dir/.mirror.cfg", $name);
 
 if (! -e $status){
 	mkdir $status or die "Can't create stauts dir $status for $name\n";
