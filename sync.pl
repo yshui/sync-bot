@@ -142,7 +142,7 @@ while($max_retries--){
 		}
 	}
 	#Oh shit! This mirror is being updated, sleep for a while and try again.
-	print "Zzzzzz...\n";
+	print "Zzzzzz...\n" if $flag2;
 	sleep 5*60 if $flag2;
 	#If there're changes/errors, run again.
 	last if !$flag;
