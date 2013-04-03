@@ -130,8 +130,22 @@ while($max_retries--){
 	if ($last_exit_code){
 		$flag = 1;
 	}
+	opendir(my $destdir, $dest);
+	my @evilmark = grep { /^Archive-Update-in-Progress/ } readdir $destdir;
+	closedir $destdir;
+	my $flag2=0;
+	for my $tmp (@evilmark){
+		if(-f $dest.$_){
+			$flag2 = 1;
+			$flag = 1;
+			last;
+		}
+	}
+	#Oh shit! This mirror is being updated, sleep for a while and try again.
+	print "Zzzzzz...\n";
+	sleep 5*60 if $flag2;
 	#If there're changes/errors, run again.
-	last if(!$flag);
+	last if !$flag;
 }
 if($last_exit_code != 0){
 	#Error occurs
