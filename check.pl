@@ -66,10 +66,11 @@ while(1){eval{
 					$s{status}="updating";
 				}
 				close $lockfile;
-			}elsif(!-e $sname){
-				$s{status}="nosyncfile";
+			}
+			if(!-e $sname){
+				$s{status}="nosyncfile" if !exists($s{status});
 			}else{
-				$s{status}="updated";
+				$s{status}="updated" if !exists($s{status});
 				open my $syncfile, "<", $sname or die "Can't open $sname\n";
 				$s{synctime}=<$syncfile>;
 				chomp $s{synctime};
