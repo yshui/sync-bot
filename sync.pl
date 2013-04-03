@@ -3,26 +3,87 @@ use strict;
 use warnings;
 use Fcntl qw(:flock SEEK_END);
 use File::Basename;
+my $mirror_base_dir="/fsdata/site/mirror/";
+sub config_parse {
+	my $file_name = shift;
+	my $target = shift;
+	die "Error in config_parse\n" if !$file_name || !$target;
+	open my $cfg, "<", $file_name or die "Can't open $file_name for reading\n";
+	my $host;
+	my $opts;
+	my $path;
+	my $dest;
+	my $name;
+	my $base;
+	my $src;
+	while(<$cfg>){
+		chomp;
+		next if /^#/;
+		if(/^=/){
+			if(/^==/){
+				#reset
+				($host, $src, $dest, $name) = ();
+				$path = "";
+				$opts = "-azHP";
+				$base = $mirror_base_dir;
+			}else{
+				s/^=//;
+				$host = $_;
+			}
+		}elsif(/^:/){
+			s/^://;
+			$path = $_;
+			$path.="/" if !($path =~ /\/$/);
+		}elsif(/^-/){
+			$opts = $_;
+			if ($opts =~ /(.*-){2,}/){
+				#a simple sanity check, prevent abusing of override_options
+				die "There should be only one dash in options\n";
+			}
+		}elsif(/^!/){
+			s/^!//;
+			$base = $_;
+			$base.="/" if !($base =~ /\/$/);
+		}else{
+			my @nlist = split /:/;
+			$name = shift @nlist;
+			$dest = shift @nlist || $name;
+			$src = shift @nlist || $dest."/";
+			return ($host."::".$path.$src, $opts, $base.$dest."/") if $name eq $target;
+		}
+	}
+	return ();
+}
+
 #First, get the arguments
 #my $uri=shift or die "You must specify a rsync uri\n";
-my $name=shift or die "You must specify a destination\n";
-my $max_retries=shift || 5;
-my $mirror_base_dir="/fsdata/site/mirror/";
-my $mirror_status_dir=$mirror_base_dir.".status/";
+my $name=shift or die "You must specify a target\n";
 die "Mirror name shouldn't contain slashes\n" if $name =~ /\//;
-my $dest=$mirror_base_dir.$name."/";
+
+my $max_retries=shift || 5;
+
+my $mirror_status_dir=$mirror_base_dir.".status/";
 my $status=$mirror_status_dir.$name."/";
+
+my ($uri, $opts, $dest) = &config_parse("./.mirror.cfg", $name);
+print "$uri $opts $dest\n";
+exit 0;
+
 if (! -e $status){
 	mkdir $status or die "Can't create stauts dir $status for $name\n";
 }
-die "Sync source isn't specified, can't find ${status}source" if (! -e $status."source");
-open my $source, "<", $status."source";
-my $uri = <$source>;
-close $source;
-chomp $uri;
+
 if (!($uri =~ /\/$/)){
 	print "Warning: $uri is not ended with a slash\n";
 }
+
+#--delay-updates isn't necessery if we have ZFS/BtrFS, sigh
+my $default_rsync_options=' -6 --delete-after --no-motd --safe-links --delay-updates --out-format="%n%L" ';
+if (-e $status."exclude"){
+	$default_rsync_options.="--exclude-from=${status}exclude";
+}
+$opts = $opts.$default_rsync_options;
+
 #acquire lock file
 my $lockfile;
 if (-e $status."lock"){
@@ -42,29 +103,12 @@ if (-e $status."lock"){
 open $lockfile, ">", $status."lock" or die "can't open ${status}lock for write\n";
 flock $lockfile, LOCK_EX or die "Can't lock file ${status}lock\n";
 print $lockfile "$$\n";
-#--delay-updates isn't necessery if we have ZFS/BtrFS, sigh
-my $default_rsync_options_0='-azHP';
-my $default_rsync_options=' -6 --delete-after --no-motd --safe-links --delay-updates --out-format="%n%L" ';
-if (-e $status."exclude"){
-	$default_rsync_options.="--exclude-from=${status}exclude";
-}
-if (-e $status."override_options"){
-	open my $opt, "<", $status."override_options";
-	my $tmp = <$opt>;
-	chomp $tmp;
-	if ($tmp =~ /(.*-){2,}/){
-		#a simple sanity check, prevent abusing of override_options
-		die "There should be only one dash in override_options\n";
-	}
-	$default_rsync_options_0 = $tmp;
-	close $opt;
-}
-$default_rsync_options = $default_rsync_options_0.$default_rsync_options;
+
 #print $default_rsync_options;
 my $last_exit_code;
 while($max_retries--){
 	print "$max_retries\n";
-	open my $res, "rsync $default_rsync_options $uri $dest |";
+	open my $res, "rsync $opts $uri $dest |";
 	my $flag=0;
 	while(<$res>){
 		chomp;
