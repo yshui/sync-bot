@@ -2,6 +2,7 @@
 use warnings;
 use strict;
 use POSIX;
+use config qw(config_load_all);
 my $pid;
 if($pid=fork){
 	die "Can't fork: $!\n" if $pid<0;
