@@ -44,7 +44,6 @@ sub config_next {
 			$dest = shift @nlist || $name;
 			$src = shift @nlist || $dest."/";
 			my %cfg;
-			print "$ctx{base}\n";
 			($cfg{base_uri}, $cfg{path}, $cfg{opts}, $cfg{base}, $cfg{dest}, $cfg{name}) =
 			    ($ctx{host}."::".$ctx{path}, $src, $ctx{opts}, $ctx{base}, $dest, $name);
 			return (\%ctx, \%cfg);
