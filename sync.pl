@@ -16,9 +16,10 @@ my $mirror_status_dir=$mirror_base_dir.".status/";
 my $status=$mirror_status_dir.$name."/";
 my $cfg=&config_select("$mirror_base_dir/.mirror.cfg", $name);
 my %cfg=%{$cfg};
-die "Can't find config for given mirror\n" if !$cfg{base_uri} || !$cfg{src} || !$cfg{dest};
+die "Can't find config for given mirror\n" if !$cfg{base_uri} || !$cfg{path} || !$cfg{dest};
+print $cfg{base};
 my $dest=$cfg{base}.$cfg{dest}."/";
-my $uri=$cfg{base_uri}.$cfg{src};
+my $uri=$cfg{base_uri}.$cfg{path};
 
 if (! -e $status){
 	mkdir $status or die "Can't create stauts dir $status for $name\n";

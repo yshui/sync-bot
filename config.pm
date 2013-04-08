@@ -1,6 +1,7 @@
 package config;
 use Exporter 'import';
 @EXPORT_OK = qw(config_load_all config_select);
+my $mirror_base_dir="/fsdata/site/mirror/";
 sub config_next {
 	my $fh = shift;
 	my $ctx = shift;
@@ -43,8 +44,9 @@ sub config_next {
 			$dest = shift @nlist || $name;
 			$src = shift @nlist || $dest."/";
 			my %cfg;
+			print "$ctx{base}\n";
 			($cfg{base_uri}, $cfg{path}, $cfg{opts}, $cfg{base}, $cfg{dest}, $cfg{name}) =
-			    ($host."::".$path, $src, $opts, $base, $dest, $name);
+			    ($ctx{host}."::".$ctx{path}, $src, $ctx{opts}, $ctx{base}, $dest, $name);
 			return (\%ctx, \%cfg);
 		}
 	}
@@ -69,8 +71,13 @@ sub config_select {
 	open my $cfgfh, "<", $file_name or die "Can't open $file_name for reading\n";
 	my ($ctx, $cfg)=&config_next($cfgfh, $ctx);
 	while($ctx){
+		my %ctx = %{$ctx};
+		for (keys %ctx){
+			print "$_ $ctx{$_}\n";
+		}
 		my %cfg = %{$cfg};
 		return $cfg if($cfg{name} eq $target);
+		($ctx, $cfg) = &config_next($cfgfh, $ctx);
 	}
 	return undef;
 }
