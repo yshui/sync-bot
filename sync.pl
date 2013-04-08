@@ -3,57 +3,8 @@ use strict;
 use warnings;
 use Fcntl qw(:flock SEEK_END);
 use File::Basename;
+use config;
 my $mirror_base_dir="/fsdata/site/mirror/";
-sub config_parse {
-	my $file_name = shift;
-	my $target = shift;
-	die "Error in config_parse\n" if !$file_name || !$target;
-	open my $cfg, "<", $file_name or die "Can't open $file_name for reading\n";
-	my $host;
-	my $opts;
-	my $path;
-	my $dest;
-	my $name;
-	my $base;
-	my $src;
-	while(<$cfg>){
-		chomp;
-		next if /^#/;
-		if(/^=/){
-			if(/^==/){
-				#reset
-				($host, $src, $dest, $name) = ();
-				$path = "";
-				$opts = "-azHP";
-				$base = $mirror_base_dir;
-			}else{
-				s/^=//;
-				$host = $_;
-			}
-		}elsif(/^:/){
-			s/^://;
-			$path = $_;
-		}elsif(/^-/){
-			$opts = $_;
-			if ($opts =~ /(.*-){2,}/){
-				#a simple sanity check, prevent abusing of override_options
-				die "There should be only one dash in options\n";
-			}
-		}elsif(/^!/){
-			s/^!//;
-			$base = $_;
-			$base.="/" if !($base =~ /\/$/);
-		}else{
-			my @nlist = split /:/;
-			$name = shift @nlist;
-			$dest = shift @nlist || $name;
-			$src = shift @nlist || $dest."/";
-			return ($host."::".$path.$src, $opts, $base.$dest."/") if $name eq $target;
-		}
-	}
-	return ();
-}
-
 #First, get the arguments
 #my $uri=shift or die "You must specify a rsync uri\n";
 my $name=shift or die "You must specify a target\n";
@@ -63,8 +14,11 @@ my $max_retries=shift || 5;
 
 my $mirror_status_dir=$mirror_base_dir.".status/";
 my $status=$mirror_status_dir.$name."/";
-
-my ($uri, $opts, $dest) = &config_parse("$mirror_base_dir/.mirror.cfg", $name);
+my $src, $base;
+my ($uri, $src, $opts, $base, $dest) = &config_parse("$mirror_base_dir/.mirror.cfg", $name);
+die "Can't find config for given mirror\n" if !$uri || !$src || !$dest;
+$dest=$base.$dest."/";
+$uri=$uri.$src;
 
 if (! -e $status){
 	mkdir $status or die "Can't create stauts dir $status for $name\n";
@@ -134,7 +88,7 @@ while($max_retries--){
 	my @evilmark = grep { /^Archive-Update-in-Progress/ } readdir $destdir;
 	closedir $destdir;
 	my $flag2=0;
-	for my $tmp (@evilmark){
+	for (@evilmark){
 		if(-f $dest.$_){
 			$flag2 = 1;
 			$flag = 1;
