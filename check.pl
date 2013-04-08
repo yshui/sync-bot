@@ -35,8 +35,14 @@ while(1){eval{
 	rewinddir $sdh;
 	my @managed_repos = grep { !/\./ && -d "$status_dir/$_" } readdir($sdh);
 	my @all_repos = grep { !/\./ && -d "$base_dir/$_" } readdir($dh);
+	my @cfgs = &config_load_all($base_dir.".mirror.cfg");
 	print "@all_repos";
 	my %mask=();
+	my %map=();
+	for my $tmp (@cfgs){
+		my %tmp=%{$tmp};
+		$map{$tmp{dest}}=$tmp{name};
+	}
 	for my $tmp (@managed_repos){
 		$mask{$tmp}=1;
 	}
@@ -44,11 +50,13 @@ while(1){eval{
 	for my $tmp (@all_repos){
 		my %s=();
 		$s{name}=$tmp;
-		$s{managed} = exists($mask{$tmp});
+		$s{managed} = exists($map{$tmp});
+		$s{name} = $map{$tmp} if($s{managed});
 		if($s{managed}){
-			my $lname = $status_dir.$tmp."/lock";
-			my $ename = $status_dir.$tmp."/error";
-			my $sname = $status_dir.$tmp."/synctime";
+			my $sdir = $status_dir.$s{name};
+			my $lname = $sdir."/lock";
+			my $ename = $sdir."/error";
+			my $sname = $sdir."/synctime";
 			if(-e $ename){
 				$s{status}="failed";
 				open my $errfile, "<", $ename or die "Can't open $ename\n";
