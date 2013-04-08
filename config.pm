@@ -71,10 +71,6 @@ sub config_select {
 	open my $cfgfh, "<", $file_name or die "Can't open $file_name for reading\n";
 	my ($ctx, $cfg)=&config_next($cfgfh, $ctx);
 	while($ctx){
-		my %ctx = %{$ctx};
-		for (keys %ctx){
-			print "$_ $ctx{$_}\n";
-		}
 		my %cfg = %{$cfg};
 		return $cfg if($cfg{name} eq $target);
 		($ctx, $cfg) = &config_next($cfgfh, $ctx);
