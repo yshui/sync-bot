@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Fcntl qw(:flock SEEK_END);
 use File::Basename;
-use config;
+use config qw(config_select);
 my $mirror_base_dir="/fsdata/site/mirror/";
 #First, get the arguments
 #my $uri=shift or die "You must specify a rsync uri\n";
@@ -14,11 +14,11 @@ my $max_retries=shift || 5;
 
 my $mirror_status_dir=$mirror_base_dir.".status/";
 my $status=$mirror_status_dir.$name."/";
-my $src, $base;
-my ($uri, $src, $opts, $base, $dest) = &config_parse("$mirror_base_dir/.mirror.cfg", $name);
-die "Can't find config for given mirror\n" if !$uri || !$src || !$dest;
-$dest=$base.$dest."/";
-$uri=$uri.$src;
+my $cfg=&config_select("$mirror_base_dir/.mirror.cfg", $name);
+my %cfg=%{$cfg};
+die "Can't find config for given mirror\n" if !$cfg{base_uri} || !$cfg{src} || !$cfg{dest};
+my $dest=$cfg{base}.$cfg{dest}."/";
+my $uri=$cfg{base_uri}.$cfg{src};
 
 if (! -e $status){
 	mkdir $status or die "Can't create stauts dir $status for $name\n";
@@ -33,7 +33,7 @@ my $default_rsync_options=' -6 --delete-after --no-motd --safe-links --delay-upd
 if (-e $status."exclude"){
 	$default_rsync_options.="--exclude-from=${status}exclude";
 }
-$opts = $opts.$default_rsync_options;
+my $opts = $cfg{opts}.$default_rsync_options;
 
 #acquire lock file
 my $lockfile;
