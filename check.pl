@@ -53,6 +53,7 @@ while(1){eval{
 		$s{name}=$tmp;
 		$s{managed} = exists($map{$tmp});
 		$s{name} = $map{$tmp} if($s{managed});
+		$s{dest} = $tmp;
 		if($s{managed}){
 			my $sdir = $status_dir.$s{name};
 			my $lname = $sdir."/lock";
@@ -103,6 +104,7 @@ while(1){eval{
 		}
 		print $statusfile '{';
 		print $statusfile qq/"name":"$a{name}"/;
+		print $statusfile qq/,"dest":"$a{dest}"/;
 		print $statusfile ',"managed":', $a{managed}?"true":"false";
 		if($a{managed}){
 			print $statusfile qq/,"err":$a{err}/ if($a{status} eq "failed");
