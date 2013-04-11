@@ -37,7 +37,6 @@ while(1){eval{
 	my @managed_repos = grep { !/\./ && -d "$status_dir/$_" } readdir($sdh);
 	my @all_repos = grep { !/\./ && -d "$base_dir/$_" } readdir($dh);
 	my @cfgs = &config_load_all($base_dir.".mirror.cfg");
-	print "@all_repos";
 	my %mask=();
 	my %map=();
 	for my $tmp (@cfgs){
