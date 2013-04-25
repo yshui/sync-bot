@@ -50,7 +50,7 @@ while(1){eval{
 		$s{name}=$tmp;
 		$s{managed} = exists($map{$tmp});
 		$s{name} = $map{$tmp} if($s{managed});
-		$s{comment} = $comments{$tmp} if($s{managed});
+		$s{comment} = $comments{$tmp} if(exists($comments{$tmp}));
 		$s{dest} = $tmp;
 		if($s{managed}){
 			my $sdir = $status_dir.$s{name};

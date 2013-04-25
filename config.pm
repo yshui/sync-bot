@@ -50,7 +50,7 @@ sub config_next {
 			my %cfg;
 			($cfg{base_uri}, $cfg{path}, $cfg{opts}, $cfg{base}, $cfg{dest}, $cfg{name}) =
 			    ($ctx{host}."::".$ctx{path}, $src, $ctx{opts}, $ctx{base}, $dest, $name);
-			$cfg{comment} = $ctx{comment} if(exists($ctx{comment}) && $ctx{comment} && !($ctx{comment} eq ""));
+			$cfg{comment} = $ctx{comment} if(exists($ctx{comment}));
 			return (\%ctx, \%cfg);
 		}
 	}
