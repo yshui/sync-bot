@@ -24,6 +24,7 @@ sub config_next {
 			}else{
 				s/^=//;
 				$ctx{host} = $_;
+				delete $ctx{comment};
 			}
 		}elsif(/^:/){
 			s/^://;
@@ -38,14 +39,17 @@ sub config_next {
 			s/^!//;
 			$ctx{base} = $_;
 			$ctx{base}.="/" if !($ctx{base} =~ /\/$/);
+		}elsif(/^@/){
+			s/^@//;
+			$ctx{comment} = $_;
 		}else{
 			my @nlist = split /:/;
 			$name = shift @nlist;
 			$dest = shift @nlist || $name;
 			$src = shift @nlist || $dest."/";
 			my %cfg;
-			($cfg{base_uri}, $cfg{path}, $cfg{opts}, $cfg{base}, $cfg{dest}, $cfg{name}) =
-			    ($ctx{host}."::".$ctx{path}, $src, $ctx{opts}, $ctx{base}, $dest, $name);
+			($cfg{base_uri}, $cfg{path}, $cfg{opts}, $cfg{base}, $cfg{dest}, $cfg{name}, $cfg{comment}) =
+			    ($ctx{host}."::".$ctx{path}, $src, $ctx{opts}, $ctx{base}, $dest, $name, $ctx{comment});
 			return (\%ctx, \%cfg);
 		}
 	}

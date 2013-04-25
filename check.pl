@@ -37,14 +37,12 @@ while(1){eval{
 	my @managed_repos = grep { !/\./ && -d "$status_dir/$_" } readdir($sdh);
 	my @all_repos = grep { !/\./ && -d "$base_dir/$_" } readdir($dh);
 	my @cfgs = &config_load_all($base_dir.".mirror.cfg");
-	my %mask=();
 	my %map=();
+	my %comments=();
 	for my $tmp (@cfgs){
 		my %tmp=%{$tmp};
 		$map{$tmp{dest}}=$tmp{name};
-	}
-	for my $tmp (@managed_repos){
-		$mask{$tmp}=1;
+		$comments{$tmp{dest}}=$tmp{comment} if exists($tmp{comment});
 	}
 	my @status;
 	for my $tmp (@all_repos){
@@ -52,6 +50,7 @@ while(1){eval{
 		$s{name}=$tmp;
 		$s{managed} = exists($map{$tmp});
 		$s{name} = $map{$tmp} if($s{managed});
+		$s{comment} = $comments{$tmp} if($s{managed});
 		$s{dest} = $tmp;
 		if($s{managed}){
 			my $sdir = $status_dir.$s{name};
@@ -109,6 +108,7 @@ while(1){eval{
 			print $statusfile qq/,"err":$a{err}/ if($a{status} eq "failed");
 			print $statusfile qq/,"synctime":$a{synctime}/ if(exists($a{synctime}));
 			print $statusfile qq/,"status":"$a{status}"/;
+			print $statusfile qq/,"comment":"$a{comment}"/ if(exists($a{comment}));
 		}
 		print $statusfile '}';
 	}
