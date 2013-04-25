@@ -48,8 +48,9 @@ sub config_next {
 			$dest = shift @nlist || $name;
 			$src = shift @nlist || $dest."/";
 			my %cfg;
-			($cfg{base_uri}, $cfg{path}, $cfg{opts}, $cfg{base}, $cfg{dest}, $cfg{name}, $cfg{comment}) =
-			    ($ctx{host}."::".$ctx{path}, $src, $ctx{opts}, $ctx{base}, $dest, $name, $ctx{comment});
+			($cfg{base_uri}, $cfg{path}, $cfg{opts}, $cfg{base}, $cfg{dest}, $cfg{name}) =
+			    ($ctx{host}."::".$ctx{path}, $src, $ctx{opts}, $ctx{base}, $dest, $name);
+			$cfg{comment} = $ctx{comment} if(exists($ctx{comment}));
 			return (\%ctx, \%cfg);
 		}
 	}
