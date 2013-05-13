@@ -6,7 +6,7 @@ use config qw(config_load_all);
 use Linux::Inotify2;
 my $pid;
 my $nodaemon = '';
-while(shift){
+while($_ = shift){
 	$nodaemon = 1 if($_ eq "-D");
 }
 if(!$nodaemon){
