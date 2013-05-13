@@ -6,8 +6,10 @@ use config qw(config_load_all);
 use Linux::Inotify2;
 my $pid;
 my $nodaemon = '';
+my $nolog = '';
 while($_ = shift){
 	$nodaemon = 1 if($_ eq "-D");
+	$nolog = 1 if($_ eq "-v");
 }
 if(!$nodaemon){
 	print "Forking to background.\n";
@@ -32,11 +34,11 @@ if(!$nodaemon){
 	{ POSIX::close $_ }
 }
 open (STDIN, "</dev/null");
-open (STDERR, ">&STDOUT");
+open (STDOUT, ">&STDERR") if !$nolog;
 chdir "/";
 my $base_dir="/fsdata/site/mirror/";
 my $status_dir=$base_dir.".status/";
-open (STDOUT, ">>${status_dir}.checker.log");
+open (STDERR, ">>${status_dir}.checker.log") if !$nolog;
 opendir my $sdh, $status_dir or die "Failed to open $status_dir\n";
 my $inotify = new Linux::Inotify2;
 for my $tmp (grep {!/\./ && -d "$status_dir/$_"} readdir($sdh)){
