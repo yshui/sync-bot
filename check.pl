@@ -150,7 +150,7 @@ while(1){eval{
 				die "WTF are you doing? Nooooooooooooooooooo";
 			}
 		}else{
-		if($tmp->mask | IN_DELETE_SELF){
+		if($tmp->mask & IN_DELETE_SELF){
 			$tmp->w->cancel();
 		}
 	}
