@@ -142,11 +142,11 @@ while(1){eval{
 	for my $tmp (@events){
 		print $tmp->name, ",", $tmp->mask, "\n";
 		if($tmp->name eq $status_dir){
-			if($tmp->mask | IN_CREATE){
+			if($tmp->mask & IN_CREATE){
 				if( -d $status_dir.$tmp->name ){
 					$inotify->watch($status_dir.$tmp->name, $ievents);
 				}
-			}elsif($tmp->mask | IN_DELETE_SELF){
+			}elsif($tmp->mask & IN_DELETE_SELF){
 				die "WTF are you doing? Nooooooooooooooooooo";
 			}
 		}else{
