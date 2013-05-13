@@ -41,9 +41,11 @@ my $status_dir=$base_dir.".status/";
 open (STDERR, ">>${status_dir}.checker.log") if !$nolog;
 opendir my $sdh, $status_dir or die "Failed to open $status_dir\n";
 my $inotify = new Linux::Inotify2;
+my $ievents = IN_CREATE | IN_DELETE_SELF | IN_DELETE | IN_CLOSE_WRITE | IN_MOVED_FROM | IN_MOVED_TO;
 for my $tmp (grep {!/\./ && -d "$status_dir/$_"} readdir($sdh)){
-	$inotify->watch($tmp, IN_ALL_EVENTS);
+	$inotify->watch("$status_dir/$tmp", $ievents);
 }
+$inotify->watch($status_dir, $ievents);
 opendir my $dh, $base_dir or die "Failed to open $base_dir\n";
 while(1){eval{
 	rewinddir $dh;
@@ -135,7 +137,7 @@ while(1){eval{
 		print "mirror_status.json updated at ", time, "\n";
 	}
 	my @events = $inotify->read;
-	unless (@events > 0) {
+	unless (@events <= 0) {
 		for my $tmp (@events){
 			if($tmp->name eq $status_dir){
 				if($tmp->mask | IN_CREATE){
