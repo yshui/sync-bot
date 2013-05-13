@@ -136,20 +136,23 @@ while(1){eval{
 		print "mirror_status.json updated at ", time, "\n";
 	}
 	my @events = $inotify->read;
-	unless (@events <= 0) {
-		for my $tmp (@events){
-			print $tmp->name, ",", $tmp->mask, "\n";
-			if($tmp->name eq $status_dir){
-				if($tmp->mask | IN_CREATE){
-					if( -d $status_dir.$tmp->name ){
-						$inotify->watch($status_dir.$tmp->name, $ievents);
-					}
-				}elsif($tmp->mask | IN_DELETE_SELF){
-					die "WTF are you doing? Nooooooooooooooooooo";
+	while(@events <= 0) {
+		@events = $inotify->read;
+	}
+	for my $tmp (@events){
+		print $tmp->name, ",", $tmp->mask, "\n";
+		if($tmp->name eq $status_dir){
+			if($tmp->mask | IN_CREATE){
+				if( -d $status_dir.$tmp->name ){
+					$inotify->watch($status_dir.$tmp->name, $ievents);
 				}
 			}elsif($tmp->mask | IN_DELETE_SELF){
-				$tmp->w->cancel();
+				die "WTF are you doing? Nooooooooooooooooooo";
 			}
+		}else{
+		if($tmp->mask | IN_DELETE_SELF){
+			$tmp->w->cancel();
 		}
+	}
 	}
 }
