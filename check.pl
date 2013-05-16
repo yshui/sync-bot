@@ -66,7 +66,7 @@ while(1){eval{
 		$s{name} = $map{$tmp}->{name} if($s{managed});
 		$s{comment} = $map{$tmp}->{comment} if(exists($map{$tmp}->{comment}));
 		$s{dest} = $tmp;
-		$s{upstream} = "rsync://".$map{$tmp}->{base_uri};
+		$s{upstream} = $map{$tmp}->{base_uri};
 		$s{upstream} =~ s/::$//;
 		if($s{managed}){
 			my $sdir = $status_dir.$s{name};
