@@ -63,10 +63,10 @@ while(1){eval{
 		my %s=();
 		$s{name}=$tmp;
 		$s{managed} = exists($map{$tmp});
-		$s{name} = $map{$tmp}->name if($s{managed});
-		$s{comment} = $map{$tmp}->comment if(exists($map{$tmp}->comment));
+		$s{name} = $map{$tmp}->{name} if($s{managed});
+		$s{comment} = $map{$tmp}->{comment} if(exists($map{$tmp}->{comment}));
 		$s{dest} = $tmp;
-		$s{upstream} = "rsync://".$map{$tmp}->base_uri;
+		$s{upstream} = "rsync://".$map{$tmp}->{base_uri};
 		if($s{managed}){
 			my $sdir = $status_dir.$s{name};
 			my $lname = $sdir."/lock";
