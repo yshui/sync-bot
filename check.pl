@@ -54,20 +54,19 @@ while(1){eval{
 	my @all_repos = grep { !/\./ && -d "$base_dir/$_" } readdir($dh);
 	my @cfgs = &config_load_all($base_dir.".mirror.cfg");
 	my %map=();
-	my %comments=();
 	for my $tmp (@cfgs){
 		my %tmp=%{$tmp};
-		$map{$tmp{dest}}=$tmp{name};
-		$comments{$tmp{dest}}=$tmp{comment} if exists($tmp{comment});
+		$map{$tmp{dest}}=$tmp;
 	}
 	my @status;
 	for my $tmp (@all_repos){
 		my %s=();
 		$s{name}=$tmp;
 		$s{managed} = exists($map{$tmp});
-		$s{name} = $map{$tmp} if($s{managed});
-		$s{comment} = $comments{$tmp} if(exists($comments{$tmp}));
+		$s{name} = $map{$tmp}->name if($s{managed});
+		$s{comment} = $map{$tmp}->comment if(exists($map{$tmp}->comment));
 		$s{dest} = $tmp;
+		$s{upstream} = "rsync://".$map{$tmp}->base_uri;
 		if($s{managed}){
 			my $sdir = $status_dir.$s{name};
 			my $lname = $sdir."/lock";
@@ -124,6 +123,7 @@ while(1){eval{
 			print $statusfile qq/,"synctime":$a{synctime}/ if(exists($a{synctime}));
 			print $statusfile qq/,"status":"$a{status}"/;
 			print $statusfile qq/,"comment":"$a{comment}"/ if(exists($a{comment}));
+			print $statusfile qq/,"upstream":"$a{upstream}"/;
 		}
 		print $statusfile '}';
 	}
