@@ -73,6 +73,15 @@ while(1){eval{
 			my $lname = $sdir."/lock";
 			my $ename = $sdir."/error";
 			my $sname = $sdir."/synctime";
+			if(!-e $sname){
+				$s{status}="nosyncfile";
+			}else{
+				$s{status}="updated";
+				open my $syncfile, "<", $sname or die "Can't open $sname\n";
+				$s{synctime}=<$syncfile>;
+				chomp $s{synctime};
+				close $syncfile;
+			}
 			if(-e $ename){
 				$s{status}="failed";
 				open my $errfile, "<", $ename or die "Can't open $ename\n";
@@ -80,7 +89,8 @@ while(1){eval{
 				chomp $code;
 				$s{err}=$code;
 				close $errfile;
-			}elsif(-e $lname){
+			}
+			if(-e $lname){
 				open my $lockfile, "<", $lname or die "Can't open $lname\n";
 				my $lockpid = <$lockfile>;
 				chomp $lockpid;
@@ -90,15 +100,6 @@ while(1){eval{
 					$s{status}="updating";
 				}
 				close $lockfile;
-			}
-			if(!-e $sname){
-				$s{status}="nosyncfile" if !exists($s{status});
-			}else{
-				$s{status}="updated" if !exists($s{status});
-				open my $syncfile, "<", $sname or die "Can't open $sname\n";
-				$s{synctime}=<$syncfile>;
-				chomp $s{synctime};
-				close $syncfile;
 			}
 		};
 		push @status, \%s;
