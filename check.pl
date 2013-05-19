@@ -45,7 +45,7 @@ my $ievents = IN_CREATE | IN_DELETE_SELF | IN_DELETE | IN_CLOSE_WRITE | IN_MOVED
 for my $tmp (grep {!/\./ && -d "$status_dir/$_"} readdir($sdh)){
 	$inotify->watch("$status_dir/$tmp", $ievents);
 }
-$inotify->watch($status_dir, $ievents);
+$inotify->watch($status_dir, $ievents & (~IN_MODIFY));
 $inotify->watch($base_dir.".mirror.cfg", $ievents);
 opendir my $dh, $base_dir or die "Failed to open $base_dir\n";
 while(1){eval{
