@@ -41,11 +41,12 @@ my $status_dir=$base_dir.".status/";
 open (STDERR, ">>${status_dir}.checker.log") if !$nolog;
 opendir my $sdh, $status_dir or die "Failed to open $status_dir\n";
 my $inotify = new Linux::Inotify2;
-my $ievents = IN_CREATE | IN_DELETE_SELF | IN_DELETE | IN_CLOSE_WRITE | IN_MOVED_FROM | IN_MOVED_TO;
+my $ievents = IN_CREATE | IN_DELETE_SELF | IN_DELETE | IN_CLOSE_WRITE | IN_MOVED_FROM | IN_MOVED_TO | IN_MODIFY;
 for my $tmp (grep {!/\./ && -d "$status_dir/$_"} readdir($sdh)){
 	$inotify->watch("$status_dir/$tmp", $ievents);
 }
 $inotify->watch($status_dir, $ievents);
+$inotify->watch($base_dir.".mirror.cfg", $ievents);
 opendir my $dh, $base_dir or die "Failed to open $base_dir\n";
 while(1){eval{
 	rewinddir $dh;
