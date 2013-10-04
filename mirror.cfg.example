@@ -1,0 +1,70 @@
+#For those miserable fellas who dones't understand this config:
+# Lines equals '==': reset
+# Lines start with 
+#  '#': comments
+#  '=': select a server
+#  ':': path
+#  '@': add a comment about the server, which will be displayed on status page.
+#  otherwise: mirror defination:
+#   mirror name[:destination path[:source path]]
+# No extra spaces allowed!
+==
+=ftp.uni-kl.de
+:
+ubuntucd:ubuntu-releases
+:pub/
+=ftp.nl.FreeBSD.org
+:
+FreeBSD
+=rsync.gtlib.gatech.edu
+@上游限连接数，有时会同步失败
+=mirror.ufs.ac.za
+:mirror/applications/
+lyx
+=ftp.jaist.ac.jp
+-aHP
+:pub/Linux/
+linuxmint
+:pub/
+cygwin
+:
+==
+=linux.mirrors.es.net
+:
+opensuse
+ubuntu
+fedora
+CPAN:CPAN:cpan/
+centos
+==
+=ftp.swin.edu.au
+gentoo
+gentoo-portage
+=mirror.de.leaseweb.net
+:
+=cran.mirror.garr.it
+:
+CRAN
+=mirror.linux.org.au
+:pub/
+LDP
+=mirror.aarnet.edu.au
+:
+==
+#=rsync.opensuse.org
+#:opensuse-full/
+#opensuse
+=ctan.mirror.rafal.ca
+:
+CTAN
+#=lug.mtu.edu
+#:
+=ftp.rnl.ist.utl.pt
+:pub/
+archlinux
+=debian.gtisc.gatech.edu
+:
+=ftp.uni-sofia.bg
+:
+debian-security
+debian
